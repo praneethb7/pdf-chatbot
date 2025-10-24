@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -8,12 +8,13 @@ export default function Landing() {
   const [user, setUser] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [pdfUploaded, setPdfUploaded] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
   // Check session on mount
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/auth/session", { withCredentials: true });
+        const res = await axios.get(`${API_URL}/auth/session`, { withCredentials: true });
         if (res.data.loggedIn) {
           setUser(res.data.user);
           if (localStorage.getItem("pdfText")) setPdfUploaded(true);
@@ -29,7 +30,7 @@ export default function Landing() {
   const handleSuccess = async (credentialResponse) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/auth/google",
+        `${API_URL}/auth/google`,
         { token: credentialResponse.credential },
         { withCredentials: true }
       );
@@ -55,7 +56,7 @@ export default function Landing() {
 
     try {
       setUploading(true);
-      const res = await axios.post("http://localhost:8000/api/upload", formData, {
+      const res = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -78,7 +79,7 @@ export default function Landing() {
   // Log out / change account
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/auth/logout", {}, { withCredentials: true });
+      await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
     } catch (err) {
       console.error("Error logging out:", err);
     }

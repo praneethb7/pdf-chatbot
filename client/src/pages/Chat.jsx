@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 
@@ -12,12 +12,13 @@ export default function Chat() {
   const [prompt, setPrompt] = useState("");
   const [pdfText, setPdfText] = useState(localStorage.getItem("pdfText") || "");
   const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
   // Fetch user session
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/auth/session", { withCredentials: true });
+        const res = await axios.get(`${API_URL}/auth/session`, { withCredentials: true });
         if (res.data.loggedIn) {
           setUser(res.data.user);
         } else {
@@ -39,7 +40,7 @@ export default function Chat() {
 
   const fetchChats = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/chat?userId=${user.id}`);
+      const res = await axios.get(`${API_URL}/api/chat?userId=${user.id}`);
       setChatList(res.data);
 
       // If a PDF is already loaded, select its chat automatically
@@ -77,7 +78,7 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8000/api/chat", {
+      const res = await axios.post(`${API_URL}/api/chat`, {
         userId: user.id,
         pdfText,
         prompt,
@@ -108,7 +109,7 @@ export default function Chat() {
   // Logout
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/auth/logout", {}, { withCredentials: true });
+      await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
     } catch (err) {
       console.error("Logout failed", err);
     } finally {
