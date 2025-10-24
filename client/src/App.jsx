@@ -1,6 +1,6 @@
-import Landing from "./pages/Landing"
+import Landing from "./pages/Landing.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Chat from "./pages/CHat";
+import Chat from "./pages/Chat.jsx";
 import { Routes, Route } from "react-router-dom";
 
 
