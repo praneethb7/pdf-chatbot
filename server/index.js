@@ -21,25 +21,42 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
 
-app.use(cors({
-  origin: [
-     process.env.CLIENT_URL,
-      "http://localhost:5173",
-  ],
-   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-}));
-app.use(express.json());
+app.set("trust proxy", 1); 
+app.use(
+  cors({
+    origin: [
+      process.env.CLIENT_URL,         
+      "http://localhost:5173",        
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-      sameSite: "none", 
-      secure: true,    
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      secure: true,          
+      sameSite: "none",     
     },
-}));
+  })
+);
+
+
+app.use((req, res, next) => {
+  res.removeHeader("Cross-Origin-Opener-Policy");
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+  next();
+});
+
 
 // 🔹 Google login route
 app.post("/auth/google", async (req, res) => {
