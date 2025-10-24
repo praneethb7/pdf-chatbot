@@ -22,7 +22,11 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error("❌ MongoDB error:", err));
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: [
+     process.env.CLIENT_URL,
+      "http://localhost:5173",
+  ],
+   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 }));
 app.use(express.json());
@@ -31,6 +35,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  cookie: {
+      sameSite: "none", 
+      secure: true,    
+    },
 }));
 
 // 🔹 Google login route
